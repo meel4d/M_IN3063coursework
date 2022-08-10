@@ -81,6 +81,7 @@ class Cell:
             self.west_value = -1
             self.west_difference = -1
 
+    # This function has the issue that if the path is not rightly setup, it will always go to the lowest neighbour. This can make an infinite loop (test function)
     def decideNextStep(self) -> int:
 
         values = self.getAllNeigbouringValues()
@@ -89,15 +90,31 @@ class Cell:
         direction = -1
 
         for dir, v in enumerate(values):
-
             if v != -1 and v <= minValue and not self.visitedNeighbours[dir]:
                 lowestValueIndex = self.getIndexFromDirection(dir)
                 minValue = v
                 direction = dir
-            break
 
         self.visitedNeighbours[direction] = True
         return lowestValueIndex
+
+    # decideNextStepByAlwaysMovingToCorner
+    def decideNextStepFirstGameSimple(self) -> int:
+        index = self.index
+        all_values = self.getAllNeigbouringValues()
+        rightValue = all_values[1]
+        southValue = all_values[2]
+
+        # if one of values is -1, return the other
+        if rightValue == -1:
+            return self.index + WIDTH
+
+        if southValue == -1:
+            return self.index + 1
+
+        if rightValue < southValue:
+            return self.index + 1
+        return self.index + WIDTH
 
     def getIndexFromDirection(self, direction: int) -> int:
         if direction == 0:
@@ -118,6 +135,7 @@ class Cell:
 
 grid_of_cells: list[Cell] = []
 
+# Making the cells
 for index, number in enumerate(grid_of_numbers):
     newCell = Cell(calculateColumn(index), calculateRow(
         index), number, grid_of_numbers)
@@ -128,9 +146,9 @@ current_cell = grid_of_cells[0]
 path_taken = [0]
 
 while current_cell.index != WIDTH*HEIGHT-1:
-    next_step = current_cell.decideNextStep()
-    current_cell = grid_of_cells[next_step]
+    next_step = current_cell.decideNextStepFirstGameSimple()
     path_taken.append(next_step)
+    current_cell = grid_of_cells[next_step]
 
 print("FINISHED")
 print(path_taken)
