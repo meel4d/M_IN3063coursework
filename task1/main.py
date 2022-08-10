@@ -2,7 +2,7 @@ import random
 
 
 WIDTH = 3
-HEIGHT = 2
+HEIGHT = 3
 AMOUNT_OF_CELLS = WIDTH * HEIGHT
 MAX_NUM = 5
 
@@ -98,9 +98,8 @@ class Cell:
         self.visitedNeighbours[direction] = True
         return lowestValueIndex
 
-    # decideNextStepByAlwaysMovingToCorner
+    # decide the next step by always moving to the corner by moving to the lowest number
     def decideNextStepFirstGameSimple(self) -> int:
-        index = self.index
         all_values = self.getAllNeigbouringValues()
         rightValue = all_values[1]
         southValue = all_values[2]
@@ -108,11 +107,29 @@ class Cell:
         # if one of values is -1, return the other
         if rightValue == -1:
             return self.index + WIDTH
-
         if southValue == -1:
             return self.index + 1
 
         if rightValue < southValue:
+            return self.index + 1
+        return self.index + WIDTH
+
+    def decideNextStepSecondGameSimple(self) -> int:
+        all_values = self.getAllNeigbouringValues()
+
+        rightValue = all_values[1]
+        southValue = all_values[2]
+
+        rightValueDifference = abs(self.value - all_values[1])
+        southValueDifference = abs(self.value - all_values[2])
+
+        # if one of values is -1, return the other
+        if rightValue == -1:
+            return self.index + WIDTH
+        if southValue == -1:
+            return self.index + 1
+
+        if rightValueDifference < southValueDifference:
             return self.index + 1
         return self.index + WIDTH
 
@@ -146,7 +163,7 @@ current_cell = grid_of_cells[0]
 path_taken = [0]
 
 while current_cell.index != WIDTH*HEIGHT-1:
-    next_step = current_cell.decideNextStepFirstGameSimple()
+    next_step = current_cell.decideNextStepSecondGameSimple()
     path_taken.append(next_step)
     current_cell = grid_of_cells[next_step]
 
