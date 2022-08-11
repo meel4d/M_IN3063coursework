@@ -43,6 +43,11 @@ class Cell:
         self.index = self.column + self.row * WIDTH
         self.value = _value
 
+        # dijkstra numbers
+        self.f_value = 0
+        self.g_value = 0
+        self.h_value = 0
+
         self.visitedNeighbours = [False, False, False, False]
 
         # NORTH
@@ -162,10 +167,37 @@ for index, number in enumerate(grid_of_numbers):
 current_cell = grid_of_cells[0]
 path_taken = [0]
 
-while current_cell.index != WIDTH*HEIGHT-1:
-    next_step = current_cell.decideNextStepSecondGameSimple()
-    path_taken.append(next_step)
-    current_cell = grid_of_cells[next_step]
+algorithm_choice = ""
+while not algorithm_choice in ["1", "2"]:
+    algorithm_choice = input(
+        "Do you want to use the simple algorithm (1) or the Dijkstra's algorithm (2)? \nChoose 1 or 2: ")
+
+if algorithm_choice == "1":
+
+    while not game_choice in ["1", "2"]:
+        game_choice = input(
+            "Do you want to use the time spent on each cell game (1) or time spent is time difference game (2)? \nChoose 1 or 2: ")
+
+    if game_choice == "1":
+        while current_cell.index != WIDTH*HEIGHT-1:
+            next_step = current_cell.decideNextStepFirstGameSimple()
+            path_taken.append(next_step)
+            current_cell = grid_of_cells[next_step]
+
+    if game_choice == "2":
+        while current_cell.index != WIDTH*HEIGHT-1:
+            next_step = current_cell.decideNextStepSecondGameSimple()
+            path_taken.append(next_step)
+            current_cell = grid_of_cells[next_step]
+
+if algorithm_choice == "2":
+
+    open_set = []
+    closed_set = []
+
+    while current_cell.index != WIDTH*HEIGHT-1:
+        pass
+
 
 print("FINISHED")
 print(path_taken)
