@@ -5,6 +5,7 @@ WIDTH = 3
 HEIGHT = 3
 AMOUNT_OF_CELLS = WIDTH * HEIGHT
 MAX_NUM = 5
+END_INDEX = AMOUNT_OF_CELLS
 
 
 def calculateColumn(index: int) -> int:
@@ -49,6 +50,7 @@ class Cell:
         self.h_value = 0
 
         self.visitedNeighbours = [False, False, False, False]
+        self.neighbours: list[Cell] = []
 
         # NORTH
         self.north_index = self.index - WIDTH
@@ -86,7 +88,22 @@ class Cell:
             self.west_value = -1
             self.west_difference = -1
 
+    def addNeigbours(self, full_grid: list):
+
+        if self.row > 0:
+            self.neighbours.append(full_grid[self.index - WIDTH])
+
+        if self.column < WIDTH - 1:
+            self.neighbours.append(full_grid[self.index + 1])
+
+        if self.row < HEIGHT - 1:
+            self.neighbours.append(full_grid[self.index + WIDTH])
+
+        if self.column > 0:
+            self.neighbours.append(full_grid[self.index - 1])
+
     # This function has the issue that if the path is not rightly setup, it will always go to the lowest neighbour. This can make an infinite loop (test function)
+
     def decideNextStep(self) -> int:
 
         values = self.getAllNeigbouringValues()
@@ -155,6 +172,12 @@ class Cell:
         return f"Cell: index: {self.index} column: {self.column} row: {self.row} values: {[self.north_difference, self.east_difference, self.south_difference, self.west_difference]} indexes: {[self.north_index, self.east_index, self.south_index, self.west_index]}"
 
 
+def predictDistanceSimpleGame(cell1: Cell, cell2: Cell):
+    horizontal_distance = abs(cell1.column - cell2.column)
+    vertical_distance = abs(cell1.row - cell2.row)
+    return horizontal_distance + vertical_distance
+
+
 grid_of_cells: list[Cell] = []
 
 # Making the cells
@@ -163,6 +186,9 @@ for index, number in enumerate(grid_of_numbers):
         index), number, grid_of_numbers)
     grid_of_cells.append(newCell)
 
+# Give each cell neigbours
+for cell in grid_of_cells:
+    cell.addNeigbours(grid_of_cells)
 
 current_cell = grid_of_cells[0]
 path_taken = [0]
@@ -179,24 +205,53 @@ if algorithm_choice == "1":
             "Do you want to use the time spent on each cell game (1) or time spent is time difference game (2)? \nChoose 1 or 2: ")
 
     if game_choice == "1":
-        while current_cell.index != WIDTH*HEIGHT-1:
+        while current_cell.index != END_INDEX:
             next_step = current_cell.decideNextStepFirstGameSimple()
             path_taken.append(next_step)
             current_cell = grid_of_cells[next_step]
 
     if game_choice == "2":
-        while current_cell.index != WIDTH*HEIGHT-1:
+        while current_cell.index != END_INDEX:
             next_step = current_cell.decideNextStepSecondGameSimple()
             path_taken.append(next_step)
             current_cell = grid_of_cells[next_step]
 
 if algorithm_choice == "2":
 
-    open_set = []
-    closed_set = []
+    open_set: list[Cell] = [grid_of_cells[0]]
+    closed_set: list[Cell] = []
 
-    while current_cell.index != WIDTH*HEIGHT-1:
-        pass
+    while len(open_set) > 0:
+        best_scoring_index: int = 0
+        for current_open_cell in open_set:
+            if(current_open_cell.f_value < open_set[best_scoring_index].f_value):
+                best_scoring_index = current_open_cell.index
+
+        current_cell = open_set[best_scoring_index]
+        if current_cell.index == END_INDEX:
+            print("Reached the end.")
+            break
+
+        # Remove from the open set
+        for i in range(len(open_set)):
+            if i == current_cell.index:
+                open_set.pop(i)
+                break
+        closed_set.append(current_cell)
+
+        for neighbour in current_cell.neighbours:
+            if not neighbour in closed_set:
+                expected_g_value = current_cell.g_value + neighbour.value
+
+                if neighbour in open_set:
+                    if neighbour.g_value > expected_g_value:
+                        neighbour.g_value = expected_g_value
+                else:
+                    neighbour.g_value = expected_g_value
+                    open_set.append(neighbour)
+
+                neighbour.h_value = predictDistanceSimpleGame(current_cell, neighbour)
+                neighbour.f_value = neighbour.g_value + neighbour.f_value
 
 
 print("FINISHED")
