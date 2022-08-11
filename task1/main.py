@@ -193,7 +193,7 @@ for cell in grid_of_cells:
 current_cell = grid_of_cells[0]
 path_taken = [0]
 
-algorithm_choice = ""
+algorithm_choice = "2" #TODO remove 2
 while not algorithm_choice in ["1", "2"]:
     algorithm_choice = input(
         "Do you want to use the simple algorithm (1) or the Dijkstra's algorithm (2)? \nChoose 1 or 2: ")
@@ -222,10 +222,13 @@ if algorithm_choice == "2":
     closed_set: list[Cell] = []
 
     while len(open_set) > 0:
+        print("open set:", len(open_set))
+        print("closed set:", len(closed_set))
+
         best_scoring_index: int = 0
-        for current_open_cell in open_set:
+        for current_open_cell_index, current_open_cell in enumerate(open_set):
             if(current_open_cell.f_value < open_set[best_scoring_index].f_value):
-                best_scoring_index = current_open_cell.index
+                best_scoring_index = current_open_cell_index
 
         current_cell = open_set[best_scoring_index]
         if current_cell.index == END_INDEX:
