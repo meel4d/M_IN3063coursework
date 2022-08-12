@@ -5,7 +5,7 @@ WIDTH = 3
 HEIGHT = 3
 AMOUNT_OF_CELLS = WIDTH * HEIGHT
 MAX_NUM = 5
-END_INDEX = AMOUNT_OF_CELLS
+END_INDEX = AMOUNT_OF_CELLS - 1
 
 
 def calculateColumn(index: int) -> int:
@@ -193,28 +193,33 @@ for cell in grid_of_cells:
 current_cell = grid_of_cells[0]
 path_taken = [0]
 
-algorithm_choice = "2" #TODO remove 2
+algorithm_choice = "1" # Only 1 gets used
 while not algorithm_choice in ["1", "2"]:
     algorithm_choice = input(
         "Do you want to use the simple algorithm (1) or the Dijkstra's algorithm (2)? \nChoose 1 or 2: ")
 
 if algorithm_choice == "1":
 
+    game_choice = ""
     while not game_choice in ["1", "2"]:
         game_choice = input(
             "Do you want to use the time spent on each cell game (1) or time spent is time difference game (2)? \nChoose 1 or 2: ")
 
-    if game_choice == "1":
-        while current_cell.index != END_INDEX:
-            next_step = current_cell.decideNextStepFirstGameSimple()
-            path_taken.append(next_step)
-            current_cell = grid_of_cells[next_step]
 
-    if game_choice == "2":
-        while current_cell.index != END_INDEX:
+    # Current cell is the cell we have currently arrived at. We start at the topleft and finish at the bottom right. As long as we have not reached the bottom right, we have not finished the game.
+    while current_cell.index != END_INDEX:
+        next_step = -1
+        if game_choice == "1":
+            # Each cell will calculate the next best step by looking at their east and south neighbour and check which one has the lowest value. This way there is always a straight path to the finish.
+            next_step = current_cell.decideNextStepFirstGameSimple()
+        elif game_choice == "2":
+            # Each cell calculates the difference between it's value and it's neigbour's value and sees which one has the least absolute difference
             next_step = current_cell.decideNextStepSecondGameSimple()
-            path_taken.append(next_step)
-            current_cell = grid_of_cells[next_step]
+
+        path_taken.append(next_step)
+        current_cell = grid_of_cells[next_step]
+
+        
 
 if algorithm_choice == "2":
 
